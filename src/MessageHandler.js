@@ -31,12 +31,4 @@ export default class MessageHandler {
 
         return true;
     }
-
-    sendNotificationToTab(tabId, messageText) {
-        browser.tabs.sendMessage(tabId, {
-            action: "showNotification", result: messageText
-        }).then(response => {
-            console.log("Notified tab");
-        });
-    }
 }
