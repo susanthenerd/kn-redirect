@@ -6,16 +6,16 @@ function insertPbinfoLink(pbinfoURL, pbinfoID) {
     // Check if we found the element
     if (idElement) {
         let linkElement = document.createElement('a');
-        linkElement.textContent = `ID PBINFO : ${pbinfoID}`;
+        linkElement.textContent = `ID PBINFO: ${pbinfoID}`;
         linkElement.href = pbinfoURL;
-        console.log(linkElement);
 
         linkElement.addEventListener('click', function (event) {
             event.preventDefault();
 
             browser.runtime.sendMessage({bypassRedirect: true}).then(response => {
-                if (response.added)
+                if (response.action === 'confirmBypassAdded' && response.value) {
                     window.location.href = pbinfoURL;
+                }
             });
         });
 
@@ -24,7 +24,8 @@ function insertPbinfoLink(pbinfoURL, pbinfoID) {
 }
 
 browser.runtime.sendMessage({checkURL: window.location.href}).then(response => {
-    if (response.problemID) {
-        insertPbinfoLink(response.matchingURL, response.problemID);
+    if (response.action === 'provideMatchingURL') {
+        const {matchingURL, problemID} = response.value;
+        insertPbinfoLink(matchingURL, problemID);
     }
 });

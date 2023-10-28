@@ -1,27 +1,53 @@
+let isInitialized = false;
 let notificationContainer;
 let progressBar;
 let goBackBtn;
 let closeNotificationBtn;
 
-function injectHTML() {
-    return fetch(browser.runtime.getURL("content-scripts/notification.html"))
-        .then(response => response.text())
-        .then(data => {
-            document.body.insertAdjacentHTML('beforeend', data);
-        });
-}
+browser.runtime.onMessage.addListener((message) => {
+    console.log(message);
+    if (message.action === "showNotification") {
+        showNotification(message.result);
+    }
+});
 
-function initializeElements() {
+document.addEventListener("DOMContentLoaded", initialize);
+
+async function initialize() {
+    console.log("Initializing...");
+    if (isInitialized) return;
+
+    await injectHTML();
+    await injectCSS();
+
     notificationContainer = document.getElementById('customNotification');
     progressBar = document.getElementById('progressBar');
     goBackBtn = document.getElementById('goBackBtn');
     closeNotificationBtn = document.getElementById('closeNotificationBtn');
+
+    attachEventListeners();
+
+    isInitialized = true;
+}
+
+async function injectHTML() {
+    const response = await fetch(browser.runtime.getURL("content-scripts/notification.html"));
+    const data = await response.text();
+    document.body.insertAdjacentHTML('beforeend', data);
+}
+
+async function injectCSS() {
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.type = 'text/css';
+    style.href = browser.runtime.getURL("content-scripts/notification.css");
+    document.head.appendChild(style);
 }
 
 function attachEventListeners() {
     goBackBtn.addEventListener('click', () => {
         sessionStorage.setItem('bypassRedirect', 'true');
-        window.history.go(); // go back two pages to bypass the automated redirect
+        window.history.go();
     });
 
     closeNotificationBtn.addEventListener('click', () => {
@@ -30,16 +56,23 @@ function attachEventListeners() {
 }
 
 function showNotification(message) {
-    injectHTML().then(() => {
-        initializeElements();
-        attachEventListeners();
-    });
+    if (!isInitialized) {
+        initialize().then(() => {
+            _displayNotification(message);
+        });
+    } else {
+        _displayNotification(message);
+    }
+}
 
+function _displayNotification(message) {
+    console.log("Displaying notification...");
     document.getElementById('notificationText').innerText = message;
-
     notificationContainer.classList.remove('hidden');
+    animateProgressBar();
+}
 
-    // Progress bar animation
+function animateProgressBar() {
     let width = 0;
     const interval = setInterval(() => {
         if (width >= 100) {
@@ -49,11 +82,9 @@ function showNotification(message) {
             width++;
             progressBar.style.width = width + '%';
         }
-    }, 100)
+    }, 100);
 }
 
 function hideNotification() {
-    if (notificationContainer) {
-        notificationContainer.classList.add('hidden');
-    }
+    notificationContainer.classList.add('hidden');
 }

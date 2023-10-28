@@ -32,3 +32,4 @@ const pbinfoHandler = new WebRequestHandler(pbinfoToKilonovaURLHandler, redirect
 // Expose URL handlers for access from popup.js
 window.pbinfoToKilonovaURLHandler = pbinfoToKilonovaURLHandler;
 window.kilonovaToPbinfoURLHandler = kilonovaToPbinfoURLHandler;
+window.messageHandler = messageHandlerKilonova;

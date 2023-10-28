@@ -1,4 +1,4 @@
-const BASE_URL = "https://raw.githubusercontent.com/susanthenerd/kn-redirect/master/maps/";
+const BASE_URL = "https://raw.githubusercontent.com/susanthenerd/kn-redirect/master/public/maps/";
 
 export default class MapManager {
     constructor(mapName, updateInterval = 3600000) { // default interval: 1 hour in milliseconds

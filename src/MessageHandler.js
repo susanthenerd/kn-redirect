@@ -1,22 +1,25 @@
+import BypassTabsInstance from './BypassTabsControler.js';
+
 export default class MessageHandler {
     constructor(urlHandler) {
         this.urlHandler = urlHandler;
-        this.bypassTabs = {};
 
         browser.runtime.onMessage.addListener(this.handleMessage.bind(this));
     }
 
     handleCheckURL(message, sendResponse) {
         const matchingURL = this.urlHandler.getRedirectURL(message.checkURL);
-        const problemID = this.urlHandler.getRedirectID(message.checkURL)
-        sendResponse({matchingURL, problemID});
+        const problemID = this.urlHandler.getRedirectID(message.checkURL);
+        sendResponse({
+            action: 'provideMatchingURL', value: {matchingURL, problemID}
+        });
     }
 
     handleBypassRedirect(sender, sendResponse) {
-        console.log("Added");
-        this.bypassTabs[sender.tab.id] = true;
-        const added = true;
-        sendResponse({added})
+        BypassTabsInstance.setBypass(sender.tab.id);
+        sendResponse({
+            action: 'confirmBypassAdded', value: true
+        });
     }
 
     handleMessage(message, sender, sendResponse) {
@@ -29,12 +32,11 @@ export default class MessageHandler {
         return true;
     }
 
-    shouldBypassTab(tabId) {
-        return !!this.bypassTabs[tabId];
-    }
-
-    clearBypassForTab(tabId) {
-        console.log("Deleted");
-        delete this.bypassTabs[tabId];
+    sendNotificationToTab(tabId, messageText) {
+        browser.tabs.sendMessage(tabId, {
+            action: "showNotification", result: messageText
+        }).then(response => {
+            console.log("Notified tab");
+        });
     }
 }

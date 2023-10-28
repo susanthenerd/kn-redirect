@@ -36,6 +36,15 @@
         "content-scripts/kilonova.js"
       ],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://kilonova.ro/problems/*"
+      ],
+      "js": [
+        "content-scripts/notification.js"
+      ],
+      "run_at": "document_start"
     }
   ]
 }
