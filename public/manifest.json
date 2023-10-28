@@ -1,0 +1,41 @@
+{
+  "manifest_version": 2,
+  "name": "Pbinfo to Kilonova Redirect",
+  "version": "1.0",
+  "description": "Redirects Pbinfo URLs to Kilonova",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "webRequest",
+    "webRequestBlocking",
+    "webNavigation",
+    "tabs",
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    "maps/pbinfo_to_kilonova.json",
+    "maps/kilonova_to_pbinfo.json",
+    "content-scripts/*"
+  ],
+  "background": {
+    "page": "src/background.html",
+    "persistent": false
+  },
+  "browser_action": {
+    "default_popup": "ui/popup.html",
+    "default_icon": {
+      "48": "favicon.ico"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://kilonova.ro/problems/*"
+      ],
+      "js": [
+        "content-scripts/kilonova.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
